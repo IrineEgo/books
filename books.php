@@ -2,15 +2,19 @@
     $commandLine = $argv;
     $csv_file = './books.csv';
 	
+    if(count($commandLine) == 1)
+	    exit('Ошибка! Укажите название книги'."\n");	
+	if ($commandLine[1] && count($commandLine) == 2 && !file_exists($csv_file))
+		exit('Ошибка. Файл $csv_file не найден'."\n");	
     if(!file_exists($csv_file)) 
-	    exit("Ошибка. Файл $csv_file не найден.\n");
+	    $myfile = fopen($csv_file, "w");       	
     if(!is_writable($csv_file)) 
-	    exit("Ошибка. Файл $csv_file защищен от записи.\n");
+	    exit('Ошибка. Файл $csv_file защищен от записи'."\n");		
 
     $arrayBooks = array_slice($commandLine, 1, count($commandLine) - 1);
     $titleBooks = implode(' ',$arrayBooks);
 
-    $apiUrl = "https://www.googleapis.com/books/v1/volumes?q=" . urlencode($titleBooks);
+    $apiUrl = 'https://www.googleapis.com/books/v1/volumes?q=' . urlencode($titleBooks);
 
     $books = json_decode(file_get_contents($apiUrl));
 
@@ -24,7 +28,7 @@
         }
 		
     $row = $book->id . ',' . $book->volumeInfo->title . ',' . implode(' ',$authors);
-        file_put_contents("./books.csv", $row."\n", FILE_APPEND); 
+        file_put_contents('./books.csv', $row."\n", FILE_APPEND); 
     }
 
     function check_correct_json() {
